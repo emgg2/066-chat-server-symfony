@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 class ValidatorUtils
 {
 
-    public function getParams( Request $req):array
+    public function getParams( Request $req)
     {
         $parameters = [];
 
