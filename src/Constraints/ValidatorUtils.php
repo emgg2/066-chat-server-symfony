@@ -24,29 +24,8 @@ class ValidatorUtils
 
     }
 
-    public function validateParams( $params, $constraints, $validator ) : array
-    {
 
-        $errors =  $validator->validate($params, $constraints );
-
-
-        if( count($errors) >0 ) {
-            $status = 400;
-            $response = self::getErrorResponse($errors);
-        } else
-        {
-            $status = 200;
-            $response = self::getOkResponse( $params );
-
-        }
-
-        return  [
-            'status' => $status,
-            'response'=> $response
-        ];
-    }
-
-    private function getErrorResponse ( $errors ): array
+    public function getErrorResponse ( $errors ): array
     {
         $response = [
             "ok"  => false,
@@ -68,17 +47,5 @@ class ValidatorUtils
 
     }
 
-    private function getOkResponse ( $params ): array
-    {
 
-        $response = [
-            "ok" => true
-        ];
-
-        foreach ($params as $param => $value )
-        {
-            $response[$param] =  $value ;
-        }
-        return $response;
-    }
 }
