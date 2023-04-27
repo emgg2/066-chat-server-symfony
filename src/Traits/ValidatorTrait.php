@@ -1,14 +1,15 @@
 <?php
 
 
-namespace App\Constraints;
+namespace App\Traits;
+
 
 use Symfony\Component\HttpFoundation\Request;
 
-class ValidatorUtils
+trait ValidatorTrait
 {
 
-    public function getParams( Request $req)
+    protected function getParams( Request $req): array
     {
         $parameters = [];
 
@@ -25,7 +26,7 @@ class ValidatorUtils
     }
 
 
-    public function getErrorResponse ( $errors ): array
+    protected function getErrorResponse ( $errors ): array
     {
         $response = [
             "ok"  => false,
@@ -44,8 +45,21 @@ class ValidatorUtils
         }
 
         return $response;
-
     }
 
+    protected function getOkResponse ( $params ): array
+    {
+
+        $response = [
+            "ok" => true,
+            "pag" => 'login'
+        ];
+
+        foreach ($params as $param => $value )
+        {
+            $response[$param] =  $value ;
+        }
+        return $response;
+    }
 
 }
