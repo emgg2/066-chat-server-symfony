@@ -1,11 +1,11 @@
 <?php
-namespace App\Document;
+namespace App\Document\Mongo;
 
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Document\User;
+use App\Document\Mongo\User;
 
 /**
  * @MongoDB\Document()

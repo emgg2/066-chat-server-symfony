@@ -1,19 +1,21 @@
 <?php
-namespace App\Document;
+namespace App\Document\Mongo;
 
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
- * @MongoDB\Document()
+ * @MongoDB\Document(collection="User", repositoryClass="App\Repository\Mongo\UserRepository")
+ * @MongoDB\HasLifecycleCallbacks
  */
 
 // If you want the User object to be serialized to the session, you need to implement Serializable
 // https://symfony.com/doc/current/security/entity_provider.html#what-do-the-serialize-and-unserialize-methods-do
-class User implements AdvancedUserInterface
+class User extends AbstractController implements UserInterface
 {
 
     /**
@@ -25,20 +27,25 @@ class User implements AdvancedUserInterface
      * @MongoDB\Field(type="string")
      * @Assert\NotBlank()
      */
-    protected $from;
+    protected $name;
 
     /**
      * @MongoDB\Field(type="string")
      * @Assert\NotBlank()
      */
-    protected $to;
+    protected $email;
+
+    /**
+     * @MongoDB\Field(type="boolean")
+     * @Assert\NotBlank()
+     */
+    protected $online;
 
     /**
      * @MongoDB\Field(type="string")
      * @Assert\NotBlank()
      */
-    protected $message;
-
+    protected $password;
 
 
 
@@ -50,14 +57,18 @@ class User implements AdvancedUserInterface
         $this->online = false;
     }
 
+    public function getRoles()
+    {
+        // TODO: Implement getRoles() method.
+    }
 
 
     /**
      * Get id
      *
-     * @return id $id
+     * @return $id
      */
-    public function getId()
+    public function getUserIdentifier()
     {
         return $this->id;
     }
@@ -67,7 +78,7 @@ class User implements AdvancedUserInterface
      *
      * @return string $name
      */
-    public function getName()
+    public function getUsername()
     {
         return $this->name;
     }
@@ -80,6 +91,16 @@ class User implements AdvancedUserInterface
     public function getPassword()
     {
         return $this->password;
+    }
+
+    /**
+     * Get Online
+     *
+     * @return bool $online
+     */
+    public function getOnline()
+    {
+        return $this->online;
     }
 
     /**
@@ -205,6 +226,7 @@ class User implements AdvancedUserInterface
             $this->name,
         ));
     }
+
 
 
 

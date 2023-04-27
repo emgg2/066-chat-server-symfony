@@ -28,6 +28,7 @@ class LoginController extends AbstractController
 
     public function login(Request $request): Response
     {
+        echo "pasa login";
 
         $params = $this->getParams( $request );
         $errors =  $this->validator->validate($params, $this->constraints );
@@ -47,17 +48,13 @@ class LoginController extends AbstractController
     {
        return  new Assert\Collection([
             'email' => [
-                new Assert\NotBlank([
-                    'message' => 'Email mandatory'
-                ]),
+                new Assert\NotBlank(),
                 new Assert\Email([
                     'message' => 'Email wrong'
                 ])
             ],
             'password' => [
-                new Assert\NotBlank([
-                    'message' => 'Password mandatory'
-                ]),
+                new Assert\NotBlank(),
             ]
         ]);
     }

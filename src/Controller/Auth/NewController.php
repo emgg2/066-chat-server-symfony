@@ -3,10 +3,14 @@
 
 namespace App\Controller\Auth;
 
+use App\Document\Mongo\User;
+use App\Repository\Mongo\UserRepository;
 use App\Traits\ValidatorTrait;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response as Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,26 +18,46 @@ use Symfony\Component\Validator\Constraints as Assert;
 class NewController extends AbstractController
 {
     private $validator;
-    private $util;
     private $constraints;
+    private $documentManager;
+    private $userRepository;
+    private $passwordHasher;
 
     use ValidatorTrait;
 
-    public function __construct( ValidatorInterface $validator )
+    public function __construct(
+        ValidatorInterface $validator,
+        DocumentManager $documentManager,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher
+    )
     {
         $this->validator = $validator;
         $this->constraints = $this->getConstraints();
+        $this->documentManager = $documentManager;
+        $this->userRepository = $userRepository;
+        $this->passwordHasher = $passwordHasher;
     }
-    public function new(Request  $request) {
 
+    public function new(Request  $request) {
         $params = $this->getParams( $request );
+
         $errors =  $this->validator->validate($params, $this->constraints );
+
         if( count($errors) >0 ) {
             $response = $this->getErrorResponse($errors);
             return  $this->json($response,Response::HTTP_BAD_REQUEST);
         }
 
-        $response = $this->getOkResponse($params);
+
+        if($this->userRepository->isEmailExists($params['email']))
+        {
+            $response = $this->getMessageResponse('Email already exists');
+            return $this->json($response, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        $user_id = $this->createNewUser($params);
+        $response = $this->getUserData($user_id);
 
         return $this->json($response, Response::HTTP_OK);
 
@@ -42,38 +66,59 @@ class NewController extends AbstractController
     {
         return  new Assert\Collection([
             'name' => [
-                new Assert\NotBlank([
-                    'message' => 'Name mandatory'
-                ]),
+                new Assert\NotBlank(),
             ],
             'email' => [
-                new Assert\NotBlank([
-                    'message' => 'Email mandatory'
-                ]),
+                new Assert\NotBlank(),
                 new Assert\Email([
                     'message' => 'Email wrong'
                 ])
             ],
             'password' => [
-                new Assert\NotBlank([
-                    'message' => 'Password mandatory'
-                ]),
+                new Assert\NotBlank(),
             ]
         ]);
     }
 
-    private function getOkResponse ( $params ): array
+    private function getUserData ( string $user_id ): array
     {
-        $response = [
-            "ok" => true,
-            "pag" => 'register'
-        ];
 
-        foreach ($params as $param => $value )
-        {
-            $response[$param] =  $value ;
-        }
-        return $response;
+        $user = $this->userRepository->findOneBy(["_id"=> $user_id]);
+
+        return  [
+            "ok"    => true,
+            "uid"   => $user->getUserIdentifier(),
+            "name"  => $user->getUsername(),
+            "password" => $user->getPassword(),
+            "online"    => $user->getOnline(),
+
+        ];
     }
+
+    /**
+     * @param $params
+     *
+     * @return string
+     */
+
+    private function createNewUser( $params ): string
+    {
+        $user = new User();
+        $user->setName($params['name']);
+        $user->setEmail($params['email']);
+        $plaintextPassword = $this->getParameter('app.secret_hash');
+        $hashedPassword = $this->passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+        $user->setPassword($hashedPassword);
+        $this->documentManager->persist($user);
+        $this->documentManager->flush();
+
+        return $user->getUserIdentifier();
+
+    }
+
+
 
 }

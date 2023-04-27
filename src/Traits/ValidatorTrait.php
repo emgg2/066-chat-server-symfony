@@ -9,14 +9,16 @@ use Symfony\Component\HttpFoundation\Request;
 trait ValidatorTrait
 {
 
+    /**
+     * @param Request $req
+     * @return array
+     */
     protected function getParams( Request $req): array
     {
         $parameters = [];
-
-
         $params = json_decode($req->getContent()) ;
 
-        if( $params) {
+        if( $params ) {
             foreach ($params as $param => $value) {
                 $parameters[$param] = $value;
             }
@@ -25,7 +27,22 @@ trait ValidatorTrait
 
     }
 
+    /**
+     * @param $message
+     * @return array
+     */
+    protected function getMessageResponse ( $message ): array
+    {
+        return  [
+            "ok"  => false,
+            "msg" => $message
+        ];
+    }
 
+    /**
+     * @param $errors
+     * @return array
+     */
     protected function getErrorResponse ( $errors ): array
     {
         $response = [
@@ -47,6 +64,10 @@ trait ValidatorTrait
         return $response;
     }
 
+    /**
+     * @param $params
+     * @return array
+     */
     protected function getOkResponse ( $params ): array
     {
 
