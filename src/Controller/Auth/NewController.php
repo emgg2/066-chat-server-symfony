@@ -41,6 +41,24 @@ class NewController extends AbstractController
     private function getConstraints() : Assert\Collection
     {
         return  new Assert\Collection([
+            'name' => [
+                new Assert\NotBlank([
+                    'message' => 'Name mandatory'
+                ]),
+            ],
+            'email' => [
+                new Assert\NotBlank([
+                    'message' => 'Email mandatory'
+                ]),
+                new Assert\Email([
+                    'message' => 'Email wrong'
+                ])
+            ],
+            'password' => [
+                new Assert\NotBlank([
+                    'message' => 'Password mandatory'
+                ]),
+            ]
         ]);
     }
 
