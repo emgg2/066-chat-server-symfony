@@ -20,9 +20,15 @@ class UserRepository extends DocumentRepository
         parent::__construct($dm, $uow, $classMetadata);
     }
 
+
+    /**
+     * @return \Doctrine\ODM\MongoDB\Iterator\Iterator|int|mixed[]|\MongoDB\DeleteResult|\MongoDB\InsertOneResult|\MongoDB\UpdateResult|object|null
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
+     */
+
     public function getAll(){
         return
-            $this->createQueryBuilder('User')
+            $this->createQueryBuilder()
                 ->sort('createdAt', 'desc')
                 ->getQuery()
                 ->execute();
@@ -39,7 +45,7 @@ class UserRepository extends DocumentRepository
     public function isEmailExists($email):bool
     {
 
-        if ( $this->createQueryBuilder('User')
+        if ( $this->createQueryBuilder()
             ->field('email')->equals($email)
             ->getQuery()
             ->getSingleResult())

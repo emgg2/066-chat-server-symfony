@@ -6,5 +6,8 @@ api_login:
   resource: "routing/auth.yaml"
   prefix: /api/login/
 
+api_login_check:
+  path: /api/login_check
+
 
 

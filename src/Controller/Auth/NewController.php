@@ -7,13 +7,14 @@ use App\Document\Mongo\User;
 use App\Repository\Mongo\UserRepository;
 use App\Traits\ValidatorTrait;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response as Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 class NewController extends AbstractController
 {
@@ -22,6 +23,9 @@ class NewController extends AbstractController
     private $documentManager;
     private $userRepository;
     private $passwordHasher;
+    private $eventDispatcher;
+    private $JWTTokenManager;
+
 
     use ValidatorTrait;
 
@@ -29,7 +33,8 @@ class NewController extends AbstractController
         ValidatorInterface $validator,
         DocumentManager $documentManager,
         UserRepository $userRepository,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $JWTTokenManager
     )
     {
         $this->validator = $validator;
@@ -37,9 +42,12 @@ class NewController extends AbstractController
         $this->documentManager = $documentManager;
         $this->userRepository = $userRepository;
         $this->passwordHasher = $passwordHasher;
+        $this->JWTTokenManager = $JWTTokenManager;
     }
 
-    public function new(Request  $request) {
+    public function new(
+        Request  $request
+        ) {
         $params = $this->getParams( $request );
 
         $errors =  $this->validator->validate($params, $this->constraints );
@@ -49,19 +57,21 @@ class NewController extends AbstractController
             return  $this->json($response,Response::HTTP_BAD_REQUEST);
         }
 
-
         if($this->userRepository->isEmailExists($params['email']))
         {
             $response = $this->getMessageResponse('Email already exists');
             return $this->json($response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $user_id = $this->createNewUser($params);
-        $response = $this->getUserData($user_id);
+        $user = $this->createNewUser($params);
+        $response = $this->getUserData($user);
 
         return $this->json($response, Response::HTTP_OK);
 
     }
+
+
+
     private function getConstraints() : Assert\Collection
     {
         return  new Assert\Collection([
@@ -80,17 +90,13 @@ class NewController extends AbstractController
         ]);
     }
 
-    private function getUserData ( string $user_id ): array
+    private function getUserData ( $user ): array
     {
-
-        $user = $this->userRepository->findOneBy(["_id"=> $user_id]);
+        $token = $this->getTokenUser($user);
 
         return  [
-            "ok"    => true,
-            "uid"   => $user->getUserIdentifier(),
-            "name"  => $user->getUsername(),
-            "password" => $user->getPassword(),
-            "online"    => $user->getOnline(),
+            "user" => $user->getUserData(),
+            "token"     => $token
 
         ];
     }
@@ -101,7 +107,7 @@ class NewController extends AbstractController
      * @return string
      */
 
-    private function createNewUser( $params ): string
+    private function createNewUser( $params ): User
     {
         $user = new User();
         $user->setName($params['name']);
@@ -115,8 +121,13 @@ class NewController extends AbstractController
         $this->documentManager->persist($user);
         $this->documentManager->flush();
 
-        return $user->getUserIdentifier();
+        return  $user;
 
+    }
+
+    public function getTokenUser ( UserInterface $user)
+    {
+        return $this->JWTTokenManager->create($user);
     }
 
 
