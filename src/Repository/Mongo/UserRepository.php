@@ -72,4 +72,17 @@ class UserRepository extends DocumentRepository
 
     }
 
+    /**
+     * @param $uid
+     * @return User | null
+     */
+    public function getUserById($uid)
+    {
+        return $this->createQueryBuilder()
+            ->field("_id")->equals(new \MongoId($uid))
+            ->getQuery()
+            ->getSingleResult();
+
+    }
+
 }
