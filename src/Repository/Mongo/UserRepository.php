@@ -58,5 +58,18 @@ class UserRepository extends DocumentRepository
 
     }
 
+    /**
+     * @param $email
+     * @return User | null
+     */
+    public function getUserByEmail($email)
+    {
+
+        return $this->createQueryBuilder()
+            ->field("email")->equals($email)
+            ->getQuery()
+            ->getSingleResult();
+
+    }
 
 }

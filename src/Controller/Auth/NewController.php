@@ -12,18 +12,34 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response as Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class NewController extends AbstractController
 {
+    /**
+     * @var ValidatorInterface
+     */
     private $validator;
+    /**
+     * @var Assert\Collection
+     */
     private $constraints;
+    /**
+     * @var DocumentManager
+     */
     private $documentManager;
+    /**
+     * @var UserRepository
+     */
     private $userRepository;
+    /**
+     * @var UserPasswordHasherInterface
+     */
     private $passwordHasher;
-    private $eventDispatcher;
+    /**
+     * @var JWTTokenManagerInterface
+     */
     private $JWTTokenManager;
 
 
@@ -45,6 +61,10 @@ class NewController extends AbstractController
         $this->JWTTokenManager = $JWTTokenManager;
     }
 
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
     public function new(
         Request  $request
         ) {
@@ -63,15 +83,22 @@ class NewController extends AbstractController
             return $this->json($response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $user = $this->createNewUser($params);
-        $response = $this->getUserData($user);
+        $user       = $this->createNewUser($params);
+        $token      = $this->JWTTokenManager->create($user);
+        $response   = $this->getOKResponse(
+            [
+                'user'=>$user->getUserData(),
+                'token' => $token
+            ]);
 
         return $this->json($response, Response::HTTP_OK);
 
     }
 
 
-
+    /**
+     * @return Assert\Collection
+     */
     private function getConstraints() : Assert\Collection
     {
         return  new Assert\Collection([
@@ -90,32 +117,20 @@ class NewController extends AbstractController
         ]);
     }
 
-    private function getUserData ( $user ): array
-    {
-        $token = $this->getTokenUser($user);
-
-        return  [
-            "user" => $user->getUserData(),
-            "token"     => $token
-
-        ];
-    }
 
     /**
      * @param $params
-     *
-     * @return string
+     * @return User
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
      */
-
     private function createNewUser( $params ): User
     {
         $user = new User();
         $user->setName($params['name']);
         $user->setEmail($params['email']);
-        $plaintextPassword = $this->getParameter('app.secret_hash');
         $hashedPassword = $this->passwordHasher->hashPassword(
             $user,
-            $plaintextPassword
+            $params['password']
         );
         $user->setPassword($hashedPassword);
         $this->documentManager->persist($user);
@@ -125,10 +140,7 @@ class NewController extends AbstractController
 
     }
 
-    public function getTokenUser ( UserInterface $user)
-    {
-        return $this->JWTTokenManager->create($user);
-    }
+
 
 
 

@@ -9,8 +9,8 @@ security:
         users_in_memory: { memory: null }
         users_mongo:
             entity:
-                class: App\Document\Mongo\User
-                property: email
+                class: 'App\Document\Mongo\User'
+                property: 'email'
     firewalls:
         login:
             pattern: ^/api/login

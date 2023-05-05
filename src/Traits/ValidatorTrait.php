@@ -3,7 +3,6 @@
 
 namespace App\Traits;
 
-
 use Symfony\Component\HttpFoundation\Request;
 
 trait ValidatorTrait
@@ -65,22 +64,35 @@ trait ValidatorTrait
     }
 
     /**
-     * @param $params
+     * @param $errors
      * @return array
      */
-    protected function getOkResponse ( $params ): array
+    protected function getMessageErrorResponse ( $message ): array
     {
-
-        $response = [
-            "ok" => true,
-            "pag" => 'login'
+        return [
+            "ok"  => false,
+            "msg" => $message
         ];
 
-        foreach ($params as $param => $value )
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    protected function getOKResponse ( array $data ): array
+    {
+        $response =  [
+            "ok" => true
+        ];
+
+        foreach ($data as $namefield => $value)
         {
-            $response[$param] =  $value ;
+            $response [$namefield] = $value;
         }
+
         return $response;
+
     }
 
 }
