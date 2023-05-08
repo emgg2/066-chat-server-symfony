@@ -1,0 +1,4 @@
+get:
+  path: /messages/{messageFrom}
+  controller: App\Controller\Message\GetMessagesController::getMessages
+  methods: [GET]

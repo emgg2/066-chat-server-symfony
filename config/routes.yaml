@@ -2,6 +2,10 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
+api_message:
+  resource: "routing/message.yaml"
+  prefix: /api
+
 api_login:
   resource: "routing/auth.yaml"
   prefix: /api/login/

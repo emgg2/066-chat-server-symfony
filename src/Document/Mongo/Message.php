@@ -5,12 +5,10 @@ namespace App\Document\Mongo;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Document\Mongo\User;
 
 /**
- * @MongoDB\Document()
- * @UniqueEntity("username")
- * @UniqueEntity("email")
+ * @MongoDB\Document(collection="Message", repositoryClass="App\Repository\Mongo\MessageRepository")
+ * @MongoDB\HasLifecycleCallbacks
  */
 
 // If you want the User object to be serialized to the session, you need to implement Serializable

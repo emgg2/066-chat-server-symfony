@@ -4,6 +4,7 @@
 namespace App\Controller\Auth;
 
 use App\Repository\Mongo\UserRepository;
+use App\Traits\JWTTrait;
 use App\Traits\ValidatorTrait;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWSProvider\JWSProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -21,7 +22,7 @@ class RenewTokenController extends AbstractController
     /**
      * @var JWTTokenManagerInterface
      */
-    private $jwtProvider;
+    private $JWTProvider;
     private $errorMessage;
     private $userRepository;
     /**
@@ -30,10 +31,11 @@ class RenewTokenController extends AbstractController
     private $JWTTokenManager;
 
     use ValidatorTrait;
+    use JWTTrait;
 
     public function __construct(
         ValidatorInterface $validator,
-        JWSProviderInterface $jwtProvider,
+        JWSProviderInterface $JWTProvider,
         UserRepository $userRepository,
         JWTTokenManagerInterface $JWTTokenManager
 
@@ -41,7 +43,7 @@ class RenewTokenController extends AbstractController
     {
         $this->validator = $validator;
         $this->constraints = $this->getConstraints();
-        $this->jwtProvider = $jwtProvider;
+        $this->JWTProvider = $JWTProvider;
         $this->userRepository = $userRepository;
         $this->JWTTokenManager = $JWTTokenManager;
 
@@ -49,12 +51,12 @@ class RenewTokenController extends AbstractController
     public function renewToken(Request $request): Response
     {
         $token = $request->headers->get('x-token');
-        $isValidJWT = $this->checkJWT( $token );
+        $isValidJWT = $this->checkJWT( $token, $this->JWTProvider );
         if ( !$isValidJWT )
         {
             return  $this->json( $this->errorMessage,Response::HTTP_BAD_REQUEST );
         }
-        $jwt = $this->jwtProvider->load($token);
+        $jwt = $this->JWTProvider->load($token);
         $payload = $jwt->getPayload();
 
         $user   = $this->userRepository->getUserById($payload['uid']);
@@ -74,36 +76,6 @@ class RenewTokenController extends AbstractController
             ]);
 
         return $this->json( $response, Response::HTTP_OK );
-
-    }
-
-    /**
-     * @param string $token
-     * @return bool
-     */
-    private function checkJWT( string $token ): bool
-    {
-        try {
-            $jwt = $this->jwtProvider->load($token);
-        } catch (\Exception $e) {
-            $this->errorMessage = $this->getMessageErrorResponse($e->getMessage());
-            return false;
-
-        }
-
-        if($jwt->isInvalid()){
-            $this->errorMessage = $this->getMessageErrorResponse('Token Invalid');
-            return false;
-
-        }
-
-        if($jwt->isExpired()){
-            $this->errorMessage = $this->getMessageErrorResponse('Token has expired ');
-            return  false;
-        }
-
-
-        return true;
 
     }
 
