@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "alcaeus/mongo-php-adapter": "^1.2",
+        "cboden/ratchet": "^0.4.4",
         "doctrine/doctrine-bundle": "^2.4",
         "doctrine/doctrine-migrations-bundle": "^3.1",
         "doctrine/mongodb-odm-bundle": "^4.5",
