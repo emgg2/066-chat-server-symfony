@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\Auth;
+namespace App\Controller\Api;
 
 use App\Repository\Mongo\UserRepository;
 use App\Traits\JWTTrait;

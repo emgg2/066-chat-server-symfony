@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Controller\Auth;
+namespace App\Controller\Api;
 
 use App\Document\Mongo\User;
 use App\Repository\Mongo\UserRepository;

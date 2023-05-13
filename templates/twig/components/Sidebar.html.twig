@@ -1,0 +1,12 @@
+{% block Sidebar %}
+    <div class="inbox_chat">
+
+       {% set chats = [1,2,3,4,5,6,7,8,9,10] %}
+
+        {% for chat in chats %}
+            {{ block ('SidebarChatItem', '@twig_component/SidebarChatItem.html.twig')  }}
+        {% endfor %}
+        <!-- Espacio extra para scroll -->
+        <div class="extra_space"></div>
+    </div>
+{% endblock %}

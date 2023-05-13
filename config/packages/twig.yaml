@@ -1,5 +1,9 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
+    paths:
+        '%kernel.project_dir%/templates/twig': twig_template
+        '%kernel.project_dir%/templates/twig/components': twig_component
+
 
 when@test:
     twig:

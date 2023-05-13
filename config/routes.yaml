@@ -7,11 +7,24 @@ api_message:
   prefix: /api
 
 api_login:
-  resource: "routing/auth.yaml"
+  resource: "routing/api.yaml"
   prefix: /api/login/
 
 api_login_check:
   path: /api/login_check
+
+auth:
+  resource: "routing/auth.yaml"
+  prefix: /auth
+
+chat:
+  path: /chat
+  controller: App\Controller\Chat\ChatController::showChatForm
+  methods: [ GET ]
+
+
+
+
 
 
 

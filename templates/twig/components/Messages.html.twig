@@ -1,0 +1,19 @@
+{% block Messages %}
+    {% set messages = [1,2,3,4,5,6,7,8,9,10] %}
+    <div class="mesgs">
+        <!-- Historia inicio -->
+        <div class="msg_history">
+            {% for message in messages %}
+                {% if message % 2 %}
+                    {{ block ('IncomingMessage', '@twig_component/IncomingMessage.html.twig')  }}
+                {% else %}
+                    {{ block ('OutcomingMessage', '@twig_component/OutcomingMessage.html.twig')  }}
+                {% endif %}
+            {% endfor %}
+        </div>
+        <!-- Historia Fin -->
+
+        {{ block ('SendMessage', '@twig_component/SendMessage.html.twig')  }}
+
+    </div>
+{% endblock %}

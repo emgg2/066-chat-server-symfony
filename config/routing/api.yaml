@@ -1,0 +1,15 @@
+new:
+  path: /new
+  controller: App\Controller\Api\NewController::new
+  methods: [POST]
+
+login:
+  path: /
+  controller: App\Controller\Api\LoginController::login
+  methods: [POST]
+
+renewToken:
+  path: /renewToken
+  controller: App\Controller\Api\RenewTokenController::renewToken
+  methods: [GET]
+

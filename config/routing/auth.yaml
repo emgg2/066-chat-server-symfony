@@ -1,14 +1,10 @@
-new:
-  path: /new
-  controller: App\Controller\Auth\NewController::new
-  methods: [POST]
-
-login:
-  path: /
-  controller: App\Controller\Auth\LoginController::login
-  methods: [POST]
-
-renewToken:
-  path: /renewToken
-  controller: App\Controller\Auth\RenewTokenController::renewToken
+auth_login:
+  path: /login
+  controller: App\Controller\Auth\LoginController::showLoginForm
   methods: [GET]
+auth_register:
+  path: /register
+  controller: App\Controller\Auth\RegisterController::showRegisterForm
+  methods: [GET]
+
+

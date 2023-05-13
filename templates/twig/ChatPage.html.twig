@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/chat.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div class="messaging">
+        <div class="inbox_msg">
+            {{ block ('InboxPeople', '@twig_component/InboxPeople.html.twig')  }}
+
+            {% if false %}
+                {{ block ('Messages', '@twig_component/Messages.html.twig')  }}
+            {% else %}
+                {{ block ('ChatSelect', '@twig_component/ChatSelect.html.twig')  }}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
